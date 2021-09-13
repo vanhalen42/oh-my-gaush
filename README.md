@@ -1,2 +1,2 @@
-# Gsh
-Gsh (pronouced jeesh).A shell implemented in C. 
+# oh-my-gaush
+oh my gaush! (gaurav's shell).A shell implemented in C. 
