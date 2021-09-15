@@ -1,9 +1,11 @@
 #include "header.h"
-void pwd()
+void pwd(char *home)
 {
     char dir[INPUT_SIZE];
     getcwd(dir, INPUT_SIZE);
-    printf("%s\n", dir);
+    char relative[INPUT_SIZE];
+    get_relative_dir(dir, home, relative);
+    printf("%s\n", relative);
 }
 void echo_parser(char *input)
 {
@@ -28,6 +30,7 @@ void cd_parser(char *input, char *home)
     command = strtok_r(NULL, " \n\t", &save);
     char toprint[1] = "";
     int args = 0;
+    char abs_path[INPUT_SIZE];
     while (command != NULL)
     {
         strcat(toprint, command);
@@ -42,9 +45,49 @@ void cd_parser(char *input, char *home)
     {
         printf("cd: too many arguments\n");
     }
-    else if (chdir(toprint) != 0)
+    else
     {
-        // printf("%s\n", toprint);
-        printf("%s: No such file or directory\n", toprint);
+        get_absolute_dir(toprint, home, abs_path);
+        if (chdir(abs_path) != 0)
+        {
+            // printf("%s\n", toprint);
+            printf("%s: No such file or directory\n", abs_path);
+        }
     }
+}
+void get_relative_dir(char *dir, char *home, char *relative)
+{
+    if (strcmp(dir, home) == 0)
+    {
+        strcpy(relative, "~");
+        return;
+    }
+
+    if (strlen(dir) < strlen(home))
+        strcpy(relative, dir);
+    else
+    {
+        for (ll i = 0; i < strlen(home); i++)
+        {
+            if (dir[i] != home[i])
+            {
+                strcpy(relative, "");
+                strcat(relative, dir);
+                return;
+            }
+        }
+        strcpy(relative, "~");
+        strcat(relative, dir + strlen(home));
+    }
+}
+void get_absolute_dir(char *dir, char *home, char *absolute)
+{
+    if (strlen(dir) >= 1 && dir[0] == '~')
+    {
+        strcpy(absolute, home);
+        if (strlen(dir) > 1)
+            strcat(absolute, dir + 1);
+    }
+    else
+        strcpy(absolute, dir);
 }

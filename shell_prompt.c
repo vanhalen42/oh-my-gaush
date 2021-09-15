@@ -16,5 +16,7 @@ void print_shell_prompt(char home[])
         errnum = errno;
         printf("%s", strerror(errnum));
     }
-    printf("<%s@%s:%s> ", user_name, unameData.nodename, dir);
+    char relative_dir[INPUT_SIZE];
+    get_relative_dir(dir, home, relative_dir);
+    printf("<%s@%s:%s> ", user_name, unameData.nodename, relative_dir);
 }
