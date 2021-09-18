@@ -48,10 +48,9 @@ void cd_parser(char *input, char *home)
     else
     {
         get_absolute_dir(toprint, home, abs_path);
-        if (chdir(abs_path) != 0)
+        if (chdir(abs_path) == -1)
         {
-            // printf("%s\n", toprint);
-            printf("%s: No such file or directory\n", abs_path);
+            printf("cd: %s: %s\n", strerror(errno), toprint);
         }
     }
 }

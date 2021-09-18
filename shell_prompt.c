@@ -1,8 +1,6 @@
 #include "header.h"
-extern int errno;
-void print_shell_prompt(char home[])
+void print_shell_prompt(char home[], char *prev_command)
 {
-    int errnum;
     //obtain details of the user and the system
     struct utsname unameData;
     uname(&unameData);
@@ -13,10 +11,19 @@ void print_shell_prompt(char home[])
     char dir[INPUT_SIZE];
     if (getcwd(dir, INPUT_SIZE) == NULL)
     {
-        errnum = errno;
-        printf("%s", strerror(errnum));
+        printf("%s", strerror(errno));
     }
     char relative_dir[INPUT_SIZE];
     get_relative_dir(dir, home, relative_dir);
-    printf("<%s@%s:%s> ", user_name, unameData.nodename, relative_dir);
+    char file_char[] = "";
+    if (strcmp(relative_dir, "~") == 0)
+        strcpy(file_char, "");
+    else if (strcmp(relative_dir, "/") == 0)
+        strcpy(file_char, ""); 
+    else
+        strcpy(file_char, "");
+    if (strcmp(prev_command, "clear") == 0)
+        printf(INPUT_WITH_BG "  " CYAN " %s@" GREEN_BOLD "%s " INPUT_WITH_BG " " PURPLE "%s %s" GREY "" INPUT_COLOR " ", user_name, unameData.nodename, file_char, relative_dir);
+    else
+        printf(INPUT_WITH_BG "\n  " CYAN " %s@" GREEN_BOLD "%s " INPUT_WITH_BG " " PURPLE "%s %s" GREY "" INPUT_COLOR " ", user_name, unameData.nodename, file_char, relative_dir);
 }

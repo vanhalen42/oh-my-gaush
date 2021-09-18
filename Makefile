@@ -1,6 +1,6 @@
 HEADER_FILE=header.h
-OBJECT_FILES=main.o shell_prompt.o ls.o built_in.o parser.o
-SOURCE_FILES=main.c shell_prompt.c ls.c built_in.c parser.c
+OBJECT_FILES=main.o shell_prompt.o ls.o built_in.o parser.o processes.o
+SOURCE_FILES=main.c shell_prompt.c ls.c built_in.c parser.c processes.c
 CC=gcc
 # CFLAGS=
 object: $(OBJECT_FILES)

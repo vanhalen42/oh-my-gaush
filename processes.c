@@ -1,27 +1,33 @@
 #include "header.h"
-void foreground(char *input_str, char *command)
+void run_process(char **func_arg, char *command, char argv[][INPUT_SIZE], int argc, int flag)
 {
     int pid = fork();
+
     if (pid < 0)
     {
-        perror(command);
+        perror("command");
     }
     else if (pid == 0)
     {
-        int argc = 0;
-        char **argv = (char **)malloc(INPUT_SIZE * sizeof(char *));
-        char *token = strtok(input_str, " \t\n");
-        while (token != NULL)
+        func_arg = (char **)malloc((argc + 1) * sizeof(char *));
+        for (int j = 0; j < argc; j++)
         {
-            argv[argc] = token;
-            argc++;
-            token = strtok(NULL, " \t\n");
+            func_arg[j] = argv[j];
+            printf("arg %d : %s\n", j, func_arg[j]);
         }
-        // for (int i = 0; i < argc; i++)
-        //     printf("%s ", argv[i]);
-        if (execvp(argv[0], argv) < 0)
+        func_arg[argc] = NULL;
+        if (execvp(func_arg[0], func_arg) == -1)
         {
-            perror(argv[0]);
+            perror("command");
+            exit(0);
+        }
+    }
+
+    else
+    {
+        if (!flag)
+        {
+            wait(NULL);
         }
     }
 }
