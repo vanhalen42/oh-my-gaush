@@ -1,4 +1,11 @@
 #include "header.h"
+struct proc
+{
+    char proc_name[INPUT_SIZE];
+    int pid;
+};
+int total_bg_proc = 0;
+struct proc bg_processes[INPUT_SIZE];
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
 {
     int pid = fork();
@@ -16,9 +23,15 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
             printf("arg %d : %s\n", j, func_arg[j]);
         }
         func_arg[argc] = NULL;
+        if (total_bg_proc >= INPUT_SIZE)
+        {
+            printf("LIMIT REACHED:cant execute more processes\n");
+            exit(0);
+        }
+        setpgid(0, 0);
         if (execvp(func_arg[0], func_arg) == -1)
         {
-            perror("command");
+            printf(RED "oh-my-gaush: command not found: %s\n", command);
             exit(0);
         }
     }
@@ -32,6 +45,9 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
         else
         {
             printf("%d\n", pid);
+            bg_processes[total_bg_proc].pid = pid;
+            strcpy(bg_processes[total_bg_proc].proc_name, command);
+            total_bg_proc++;
         }
     }
 }
@@ -39,12 +55,29 @@ void process(int signum)
 {
     int status;
     pid_t ret_pid = waitpid(-1, &status, WNOHANG | WUNTRACED);
+    char process_name[INPUT_SIZE] = "unnamed process";
+    int i;
     if (ret_pid > 0)
     {
+        for (i = 0; i < total_bg_proc; i++)
+        {
+            if (bg_processes[i].pid == ret_pid)
+            {
+                strcpy(process_name, bg_processes[i].proc_name);
+                break;
+            }
+        }
+        printf("index: %d\n", i);
         if (WIFEXITED(status))
-            fprintf(stderr, "\nENDED  normally: %d\n", ret_pid);
+            fprintf(stderr, "\n%s with pid %d exited normally\n", process_name, ret_pid);
         else
-            fprintf(stderr, "\nENDED  abnormally: %d\n", ret_pid);
+            fprintf(stderr, "\n%s with pid %d exited abnormally\n", process_name, ret_pid);
+        i++;
+        for (; i < total_bg_proc; i++)
+        {
+            bg_processes[i - 1] = bg_processes[i];
+        }
+        total_bg_proc--;
     }
     return;
 }
@@ -75,6 +108,10 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
     else if (strcmp(command, "ls") == 0)
     {
         ls(flags, argv, argc, home_dir);
+    }
+    else if (strcmp(command, "pinfo") == 0)
+    {
+        pinfo(command, argv, argc);
     }
     else if (strcmp(command, "repeat") == 0)
     {

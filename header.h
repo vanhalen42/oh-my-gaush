@@ -1,3 +1,6 @@
+#ifndef HEADER_H
+#define HEADER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,8 +24,8 @@
 #define GREEN "\033[0;38;5;40;48;5;239m"
 #define GREEN_BOLD "\033[1;38;5;40;48;5;239m"
 
-#define RED "\033[0;31;48;5;239m"
-#define RED_BOLD "\033[1;31;48;5;239m"
+#define RED "\033[0;31m"
+#define RED_BOLD "\033[1;31m"
 
 #define YELLOW "\033[0;33;48;5;239m"
 #define YELLOW_BOLD "\033[1;33;48;5;239m"
@@ -58,3 +61,6 @@ int flag_in(char flag, char *flags);
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag);
 void process(int signum);
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc);
+void pinfo(char *command, char argv[][INPUT_SIZE], int argc);
+
+#endif
