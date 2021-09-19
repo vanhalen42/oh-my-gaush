@@ -1,7 +1,7 @@
 #include "header.h"
 void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
 {
-    char currect_dir[INPUT_SIZE];
+    char current_dir[INPUT_SIZE];
     if (argc == 1)
     {
         strcpy(argv[1], ".");
@@ -9,8 +9,9 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
     }
     for (int i = 1; i < argc; i++)
     {
-        get_absolute_dir(argv[1], home, currect_dir);
-        DIR *dir = opendir(currect_dir);
+        strcpy(current_dir, "");
+        get_absolute_dir(argv[i], home, current_dir);
+        DIR *dir = opendir(current_dir);
         if (dir == NULL)
         {
             printf("Error: %s\n", strerror(errno));
@@ -20,17 +21,22 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         char last_modified[INPUT_SIZE];
         struct tm lt;
         struct dirent *entry;
-        printf("%s\n--------------------------------------------------\n", currect_dir);
+        printf("%s\n--------------------------------------------------\n", current_dir);
         // int count = 0;
         if (flag_in('a', flags))
         {
-            // count_total(flags, argv, argc, home);
+            count_total(flags, argv, argc, home);
             if (flag_in('l', flags))
             {
                 while ((entry = readdir(dir)) != NULL)
                 {
                     struct stat statbuf;
-                    stat(entry->d_name, &statbuf);
+                    char curr_file[INPUT_SIZE];
+                    strcpy(curr_file, current_dir);
+                    if (curr_file[strlen(curr_file) - 1] != '/')
+                        strcat(curr_file, "/");
+                    strcat(curr_file, entry->d_name);
+                    stat(curr_file, &statbuf);
                     // rwx permissions
                     printf((S_ISDIR(statbuf.st_mode)) ? "d" : "-");
                     printf((statbuf.st_mode & S_IRUSR) ? "r" : "-");
@@ -65,13 +71,18 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         {
             if (flag_in('l', flags))
             {
-                // count_total(flags, argv, argc, home);
+                count_total(flags, argv, argc, home);
                 while ((entry = readdir(dir)) != NULL)
                 {
                     if (entry->d_name[0] != '.')
                     {
                         struct stat statbuf;
-                        stat(entry->d_name, &statbuf);
+                        char curr_file[INPUT_SIZE];
+                        strcpy(curr_file, current_dir);
+                        if (curr_file[strlen(curr_file) - 1] != '/')
+                            strcat(curr_file, "/");
+                        strcat(curr_file, entry->d_name);
+                        stat(curr_file, &statbuf);
                         // rwx permissions
                         printf((S_ISDIR(statbuf.st_mode)) ? "d" : "-");
                         printf((statbuf.st_mode & S_IRUSR) ? "r" : "-");
@@ -123,7 +134,7 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
     for (int i = 1; i < argc; i++)
     {
         get_absolute_dir(argv[1], home, current_dir);
-        printf("currect dir: %s\n", current_dir);
+        // printf("currect dir: %s\n", current_dir);
         DIR *dir = opendir(current_dir);
         if (dir == NULL)
         {
@@ -139,11 +150,13 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         {
             while ((entry = readdir(dir)) != NULL)
             {
-                printf("dir_name: %s\n", entry->d_name);
-                stat(entry->d_name, &statbuf);
-                int hmm = (int)statbuf.st_blocks;
-                printf("hmm: %d\n\n", hmm);
-                count += hmm;
+                char curr_file[INPUT_SIZE];
+                strcpy(curr_file, current_dir);
+                if (curr_file[strlen(curr_file) - 1] != '/')
+                    strcat(curr_file, "/");
+                strcat(curr_file, entry->d_name);
+                stat(curr_file, &statbuf);
+                count += statbuf.st_blocks;
                 // printf("count: %d\n", count);
             }
         }
@@ -154,11 +167,13 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
             {
                 if (entry->d_name[0] != '.')
                 {
-                    printf("dir_name: %s\n", entry->d_name);
-                    stat(entry->d_name, &statbuf);
-                    int hmm = (int)statbuf.st_blocks;
-                    printf("hmm: %d\n\n", hmm);
-                    count += hmm;
+                    char curr_file[INPUT_SIZE];
+                    strcpy(curr_file, current_dir);
+                    if (curr_file[strlen(curr_file) - 1] != '/')
+                        strcat(curr_file, "/");
+                    strcat(curr_file, entry->d_name);
+                    stat(curr_file, &statbuf);
+                    count += statbuf.st_blocks;
                     // printf("count: %d\n", count);
                 }
             }
