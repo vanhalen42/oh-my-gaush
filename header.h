@@ -55,4 +55,6 @@ void foreground(char *input_str, char *command);
 int parse_semicolon(char a[], char b[][INPUT_SIZE]);
 int flags_parser(char *input, char *flags);
 int flag_in(char flag, char *flags);
-void run_process(char **func_arg, char *command, char argv[][INPUT_SIZE], int argc, int flag);
+void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag);
+void process(int signum);
+int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc);

@@ -21,10 +21,10 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         struct tm lt;
         struct dirent *entry;
         printf("%s\n--------------------------------------------------\n", currect_dir);
-        int count = 0;
+        // int count = 0;
         if (flag_in('a', flags))
         {
-            // count_total(flags, argv, argc, home);
+            count_total(flags, argv, argc, home);
             if (flag_in('l', flags))
             {
                 while ((entry = readdir(dir)) != NULL)
@@ -50,6 +50,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
                     strftime(last_modified, INPUT_SIZE, "%c", &lt);
                     printf("%s ", last_modified);
                     printf("%s\n", entry->d_name);
+                    // count += statbuf.st_blocks;
                 }
             }
             else
@@ -64,7 +65,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         {
             if (flag_in('l', flags))
             {
-                // count_total(flags, argv, argc, home);
+                count_total(flags, argv, argc, home);
                 while ((entry = readdir(dir)) != NULL)
                 {
                     if (entry->d_name[0] != '.')
@@ -90,7 +91,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
                         strftime(last_modified, INPUT_SIZE, "%c", &lt);
                         printf("%s ", last_modified);
                         printf("%s\n", entry->d_name);
-                        count += statbuf.st_blocks;
+                        // count += statbuf.st_blocks;
                     }
                 }
             }
@@ -104,6 +105,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
             }
         }
         closedir(dir);
+        // printf("total: %d\n", count);
         printf("\n");
     }
     return;
@@ -115,11 +117,13 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         strcpy(argv[1], ".");
         argc++;
     }
+    int count = 0;
     struct stat statbuf;
     char current_dir[INPUT_SIZE];
     for (int i = 1; i < argc; i++)
     {
         get_absolute_dir(argv[1], home, current_dir);
+        printf("currect dir: %s\n", current_dir);
         DIR *dir = opendir(current_dir);
         if (dir == NULL)
         {
@@ -130,16 +134,17 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         char last_modified[INPUT_SIZE];
         struct tm lt;
         struct dirent *entry;
-        int count = 0;
+        // int count = 0;
         if (flag_in('a', flags))
         {
             while ((entry = readdir(dir)) != NULL)
             {
+                printf("dir_name: %s\n", entry->d_name);
                 stat(entry->d_name, &statbuf);
-                int hmm = statbuf.st_blocks;
-                printf("hmm: %d\n", hmm);
+                int hmm = (int)statbuf.st_blocks;
+                printf("hmm: %d\n\n", hmm);
                 count += hmm;
-                printf("count: %d\n", count);
+                // printf("count: %d\n", count);
             }
         }
         else
@@ -149,11 +154,12 @@ void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
             {
                 if (entry->d_name[0] != '.')
                 {
+                    printf("dir_name: %s\n", entry->d_name);
                     stat(entry->d_name, &statbuf);
-                    int hmm = statbuf.st_blocks;
-                    printf("hmm: %d\n", hmm);
+                    int hmm = (int)statbuf.st_blocks;
+                    printf("hmm: %d\n\n", hmm);
                     count += hmm;
-                    printf("count: %d\n", count);
+                    // printf("count: %d\n", count);
                 }
             }
         }

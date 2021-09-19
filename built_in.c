@@ -11,7 +11,9 @@ void echo_parser(char *input)
 {
     // printf("%s", input);
     char *save;
-    char *command = strtok_r(input, " \n\t", &save);
+    char buffer[INPUT_SIZE];
+    strcpy(buffer, input);
+    char *command = strtok_r(buffer, " \n\t", &save);
     // printf("%s\n", command);
     command = strtok_r(NULL, " \n\t", &save);
     while (command != NULL)
@@ -26,7 +28,9 @@ void cd_parser(char *input, char *home)
     char *save;
     char pwd[INPUT_SIZE];
     getcwd(pwd, INPUT_SIZE);
-    char *command = strtok_r(input, " \n\t", &save);
+    char buffer[INPUT_SIZE];
+    strcpy(buffer, input);
+    char *command = strtok_r(buffer, " \n\t", &save);
     command = strtok_r(NULL, " \n\t", &save);
     char toprint[1] = "";
     int args = 0;
