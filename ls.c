@@ -53,7 +53,24 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
                     printf("%d\t", (int)statbuf.st_size);
                     time_t t = statbuf.st_mtime;
                     localtime_r(&t, &lt);
-                    strftime(last_modified, INPUT_SIZE, "%c", &lt);
+                    struct tm time_present;
+                    time_t present_time = time(NULL);
+                    localtime_r(&present_time, &time_present);
+                    int YEAR = lt.tm_year;
+                    int MONTH1 = lt.tm_mon;
+                    int present_year = time_present.tm_year;
+                    int present_month = time_present.tm_mon;
+                    int months_to_subtract = present_month - MONTH1;
+                    if (YEAR != present_year || (YEAR == present_year && ((months_to_subtract >= 0 && months_to_subtract > 6) || (months_to_subtract < 0 && months_to_subtract < -6))))
+                    {
+                        strftime(last_modified, INPUT_SIZE, "%b %d %Y", localtime(&t));
+                    }
+                    else
+                    {
+
+                        strftime(last_modified, INPUT_SIZE, "%b %d %H:%M", localtime(&t));
+                    }
+                    // strftime(last_modified, INPUT_SIZE, "%c", &lt);
                     printf("%s ", last_modified);
                     printf("%s\n", entry->d_name);
                     // count += statbuf.st_blocks;
@@ -100,7 +117,24 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
                         printf("%d\t", (int)statbuf.st_size);
                         time_t t = statbuf.st_mtime;
                         localtime_r(&t, &lt);
-                        strftime(last_modified, INPUT_SIZE, "%c", &lt);
+                        struct tm time_present;
+                        time_t present_time = time(NULL);
+                        localtime_r(&present_time, &time_present);
+                        int YEAR = lt.tm_year;
+                        int MONTH1 = lt.tm_mon;
+                        int present_year = time_present.tm_year;
+                        int present_month = time_present.tm_mon;
+                        int months_to_subtract = present_month - MONTH1;
+                        if (YEAR != present_year || (YEAR == present_year && ((months_to_subtract >= 0 && months_to_subtract > 6) || (months_to_subtract < 0 && months_to_subtract < -6))))
+                        {
+                            strftime(last_modified, INPUT_SIZE, "%b %d %Y", localtime(&t));
+                        }
+                        else
+                        {
+
+                            strftime(last_modified, INPUT_SIZE, "%b %d %H:%M", localtime(&t));
+                        }
+                        // strftime(last_modified, INPUT_SIZE, "%c", &lt);
                         printf("%s ", last_modified);
                         printf("%s\n", entry->d_name);
                         // count += statbuf.st_blocks;
