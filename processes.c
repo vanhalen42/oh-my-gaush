@@ -6,6 +6,13 @@ struct proc
 };
 int total_bg_proc = 0;
 struct proc bg_processes[INPUT_SIZE];
+void print_all_proc()
+{
+    for (int k = 0; k < total_bg_proc; k++)
+    {
+        printf("%s: %d\n", bg_processes[k].proc_name, bg_processes[k].pid);
+    }
+}
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags)
 {
     int pid = fork();
@@ -61,6 +68,7 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
             total_bg_proc++;
         }
     }
+    // print_all_proc();
 }
 void process(int signum)
 {
@@ -90,8 +98,10 @@ void process(int signum)
         }
         total_bg_proc--;
     }
+    // print_all_proc();
     return;
 }
+
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc)
 {
     int exit_code = 0;

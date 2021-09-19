@@ -21,11 +21,11 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         char last_modified[INPUT_SIZE];
         struct tm lt;
         struct dirent *entry;
-        printf("%s\n--------------------------------------------------\n", current_dir);
+        printf("%s:\n", current_dir);
         // int count = 0;
         if (flag_in('a', flags))
         {
-            count_total(flags, argv, argc, home);
+            printf("total %d\n", count_total(flags, current_dir, home));
             if (flag_in('l', flags))
             {
                 while ((entry = readdir(dir)) != NULL)
@@ -71,7 +71,8 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         {
             if (flag_in('l', flags))
             {
-                count_total(flags, argv, argc, home);
+                printf("total %d\n", count_total(flags, current_dir, home));
+
                 while ((entry = readdir(dir)) != NULL)
                 {
                     if (entry->d_name[0] != '.')
@@ -121,66 +122,52 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
     }
     return;
 }
-void count_total(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
+int count_total(char *flags, char *input, char *home)
 {
-    if (argc == 1)
-    {
-        strcpy(argv[1], ".");
-        argc++;
-    }
-    int count = 0;
-    struct stat statbuf;
     char current_dir[INPUT_SIZE];
-    for (int i = 1; i < argc; i++)
+    int count = 0;
+    struct dirent *entry;
+    get_relative_dir(input, home, current_dir);
+    DIR *dir = opendir(current_dir);
+    if (dir == NULL)
     {
-        get_absolute_dir(argv[1], home, current_dir);
-        // printf("currect dir: %s\n", current_dir);
-        DIR *dir = opendir(current_dir);
-        if (dir == NULL)
-        {
-            printf("Error: %s\n", strerror(errno));
-            continue;
-        }
-        // list all files in the directory
-        char last_modified[INPUT_SIZE];
-        struct tm lt;
-        struct dirent *entry;
-        // int count = 0;
-        if (flag_in('a', flags))
-        {
-            while ((entry = readdir(dir)) != NULL)
-            {
-                char curr_file[INPUT_SIZE];
-                strcpy(curr_file, current_dir);
-                if (curr_file[strlen(curr_file) - 1] != '/')
-                    strcat(curr_file, "/");
-                strcat(curr_file, entry->d_name);
-                stat(curr_file, &statbuf);
-                count += statbuf.st_blocks;
-                // printf("count: %d\n", count);
-            }
-        }
-        else
-        {
-
-            while ((entry = readdir(dir)) != NULL)
-            {
-                if (entry->d_name[0] != '.')
-                {
-                    char curr_file[INPUT_SIZE];
-                    strcpy(curr_file, current_dir);
-                    if (curr_file[strlen(curr_file) - 1] != '/')
-                        strcat(curr_file, "/");
-                    strcat(curr_file, entry->d_name);
-                    stat(curr_file, &statbuf);
-                    count += statbuf.st_blocks;
-                    // printf("count: %d\n", count);
-                }
-            }
-        }
-        printf("total: %d\n", count / 2);
-        closedir(dir);
-        printf("\n");
+        printf("Error: %s\n", strerror(errno));
+        return 0;
     }
-    return;
+    if (flag_in('a', flags))
+    {
+        while ((entry = readdir(dir)) != NULL)
+        {
+            struct stat statbuf;
+            char curr_file[INPUT_SIZE];
+            strcpy(curr_file, current_dir);
+            if (curr_file[strlen(curr_file) - 1] != '/')
+            {
+                strcat(curr_file, "/");
+            }
+            strcat(curr_file, entry->d_name);
+            stat(curr_file, &statbuf);
+            count += statbuf.st_blocks;
+        }
+    }
+    else
+    {
+        while ((entry = readdir(dir)) != NULL)
+        {
+            if (entry->d_name[0] == '.')
+                continue;
+            struct stat statbuf;
+            char curr_file[INPUT_SIZE];
+            strcpy(curr_file, current_dir);
+            if (curr_file[strlen(curr_file) - 1] != '/')
+            {
+                strcat(curr_file, "/");
+            }
+            strcat(curr_file, entry->d_name);
+            stat(curr_file, &statbuf);
+            count += statbuf.st_blocks;
+        }
+    }
+    closedir(dir);
+    return count / 2;
 }
