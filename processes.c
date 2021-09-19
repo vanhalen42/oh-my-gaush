@@ -28,7 +28,8 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
             printf("LIMIT REACHED:cant execute more processes\n");
             exit(0);
         }
-        setpgid(0, 0);
+        if (flag)
+            setpgid(0, 0);
         if (execvp(func_arg[0], func_arg) == -1)
         {
             printf(RED "oh-my-gaush: command not found: %s\n", command);
@@ -111,7 +112,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
     }
     else if (strcmp(command, "pinfo") == 0)
     {
-        pinfo(command, argv, argc);
+        pinfo(command, argv, argc, home_dir);
     }
     else if (strcmp(command, "repeat") == 0)
     {

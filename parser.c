@@ -3,7 +3,7 @@ int parse_command(char *input, char *command, char argv[][INPUT_SIZE], char *fla
 {
     char *save, *c, buffer[INPUT_SIZE];
     strcpy(buffer, input);
-    c = strtok_r(buffer, " \n", &save);
+    c = strtok_r(buffer, " \t\n", &save);
     if (c == NULL)
         return -1;
     else
@@ -23,7 +23,7 @@ int parse_command(char *input, char *command, char argv[][INPUT_SIZE], char *fla
             strcpy(argv[len], c);
             len++;
         }
-        c = strtok_r(NULL, " \n", &save);
+        c = strtok_r(NULL, " \t\n", &save);
     }
     return len;
 }

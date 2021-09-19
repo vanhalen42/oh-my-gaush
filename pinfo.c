@@ -1,6 +1,6 @@
 #include "header.h"
 
-void pinfo(char *command, char argv[][INPUT_SIZE], int argc)
+void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home)
 {
     int pid;
     char pid_str[50];
@@ -18,7 +18,6 @@ void pinfo(char *command, char argv[][INPUT_SIZE], int argc)
     {
         strcpy(pid_str, argv[1]);
     }
-    printf("pid -- %s\n", pid_str);
     char proc_file_path[INPUT_SIZE] = "/proc/";
     strcat(proc_file_path, pid_str);
     strcat(proc_file_path, "/stat");
@@ -31,7 +30,7 @@ void pinfo(char *command, char argv[][INPUT_SIZE], int argc)
     }
     int total_bytes = 10002;
     lseek(f, 0, SEEK_SET);
-    char *buf = (char *)malloc(total_bytes);
+    char buf[total_bytes];
     int bytes = read(f, buf, total_bytes);
     buf[bytes] = '\0';
     close(f);
@@ -42,6 +41,7 @@ void pinfo(char *command, char argv[][INPUT_SIZE], int argc)
     {
         status[i++] = strtok(NULL, " ");
     }
+    printf("pid -- %s\n", status[0]);
     printf("Process Status -- %s", status[2]);
     if (strcmp(status[0], status[7]) == 0)
     {
@@ -50,4 +50,19 @@ void pinfo(char *command, char argv[][INPUT_SIZE], int argc)
     printf("\n");
 
     printf("memory -- %s {Virtual Memory}\n", status[22]);
+    strcpy(proc_file_path, "/proc/");
+    strcat(proc_file_path, pid_str);
+    strcat(proc_file_path, "/exe");
+    strcpy(buf, "");
+    int link_size = readlink(proc_file_path, buf, sizeof(buf));
+    char relative[INPUT_SIZE];
+    if (link_size < 0)
+    {
+        printf(RED "Executable Path -- %s\n", strerror(errno));
+    }
+    else
+    {
+        get_relative_dir(buf, home, relative);
+        printf("Executable Path -- %s\n", relative);
+    }
 }

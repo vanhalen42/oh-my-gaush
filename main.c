@@ -37,15 +37,15 @@ int main()
             {
                 flag = 0;
             }
-            // printf("command: %s.\n", command);
-            // printf("flags: %s\n", flags);
-            // printf("command: %s\n", command);
-            // printf("argc: %d\n", argc);
-            // for (int j = 0; j < argc; j++)
-            // {
-            //     printf("argv[%d]: %s\n", j, argv[j]);
-            // }
-            // printf("flags : %s\n", flags);
+            printf("command: %s.\n", command);
+            printf("flags: %s\n", flags);
+            printf("command: %s\n", command);
+            printf("argc: %d\n", argc);
+            for (int j = 0; j < argc; j++)
+            {
+                printf("argv[%d]: %s\n", j, argv[j]);
+            }
+            printf("flags : %s\n", flags);
             if (!argc)
             {
                 continue;

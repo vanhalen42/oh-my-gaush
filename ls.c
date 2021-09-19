@@ -24,7 +24,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         // int count = 0;
         if (flag_in('a', flags))
         {
-            count_total(flags, argv, argc, home);
+            // count_total(flags, argv, argc, home);
             if (flag_in('l', flags))
             {
                 while ((entry = readdir(dir)) != NULL)
@@ -65,7 +65,7 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         {
             if (flag_in('l', flags))
             {
-                count_total(flags, argv, argc, home);
+                // count_total(flags, argv, argc, home);
                 while ((entry = readdir(dir)) != NULL)
                 {
                     if (entry->d_name[0] != '.')
