@@ -25,6 +25,7 @@ int main()
         for (int i = 0; i < num_commands; i++)
         {
             // int num_flags=flags_parser(input_str, flags);
+            strcpy(flags, "");
             int argc = parse_command(input[i], command, argv, flags);
             strcpy(prev_command, command);
             if (strcmp(argv[argc - 1], "&") == 0)

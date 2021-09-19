@@ -6,7 +6,7 @@ struct proc
 };
 int total_bg_proc = 0;
 struct proc bg_processes[INPUT_SIZE];
-void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
+void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags)
 {
     int pid = fork();
     char **func_arg;
@@ -16,13 +16,23 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag)
     }
     else if (pid == 0)
     {
-        func_arg = (char **)malloc((argc + 1) * sizeof(char *));
+        func_arg = (char **)malloc((argc + 2) * sizeof(char *));
         for (int j = 0; j < argc; j++)
         {
             func_arg[j] = argv[j];
-            printf("arg %d : %s\n", j, func_arg[j]);
+            // printf("arg %d : %s\n", j, func_arg[j]);
+        }
+        if (strlen(flags) != 0)
+        {
+            char added_flags[INPUT_SIZE] = "-";
+            strcat(added_flags, flags);
+            func_arg[argc++] = added_flags;
         }
         func_arg[argc] = NULL;
+        for (int j = 0; j < argc; j++)
+        {
+            printf("arg %d : %s\n", j, func_arg[j]);
+        }
         if (total_bg_proc >= INPUT_SIZE)
         {
             printf("LIMIT REACHED:cant execute more processes\n");
@@ -150,7 +160,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
     }
     else
     {
-        run_process(command, argv, argc, flag);
+        run_process(command, argv, argc, flag, flags);
     }
     return exit_code;
 }
