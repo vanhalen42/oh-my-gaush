@@ -36,10 +36,10 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
             func_arg[argc++] = added_flags;
         }
         func_arg[argc] = NULL;
-        for (int j = 0; j < argc; j++)
-        {
-            printf("arg %d : %s\n", j, func_arg[j]);
-        }
+        // for (int j = 0; j < argc; j++)
+        // {
+        //     printf("arg %d : %s\n", j, func_arg[j]);
+        // }
         if (total_bg_proc >= INPUT_SIZE)
         {
             printf("LIMIT REACHED:cant execute more processes\n");
@@ -155,7 +155,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             }
             for (int k = 0; k < n; k++)
             {
-                printf("inputtstr:%s\n", new_input);
+                // printf("inputtstr:%s\n", new_input);
                 execute_command(new_input, home_dir, new_argv[0], new_argv, flags, flag, new_argc);
             }
         }

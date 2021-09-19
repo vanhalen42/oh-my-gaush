@@ -25,9 +25,9 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         // int count = 0;
         if (flag_in('a', flags))
         {
-            printf("total %d\n", count_total(flags, current_dir, home));
             if (flag_in('l', flags))
             {
+                printf("total %d\n", count_total(flags, current_dir, home));
                 while ((entry = readdir(dir)) != NULL)
                 {
                     struct stat statbuf;
