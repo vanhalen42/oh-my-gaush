@@ -14,8 +14,15 @@ void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
         DIR *dir = opendir(current_dir);
         if (dir == NULL)
         {
-            printf("Error: %s\n", strerror(errno));
-            continue;
+            int f = open(current_dir, O_RDONLY);
+            if (f == -1)
+            {
+                printf("Error: %s\n", strerror(errno));
+                continue;
+            }
+            struct stat file_stat;
+            stat(current_dir, &file_stat);
+            
         }
         // list all files in the directory
         char last_modified[INPUT_SIZE];
