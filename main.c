@@ -13,6 +13,7 @@ int main()
     char argv[INPUT_SIZE][INPUT_SIZE] = {""};  // stores the arguments
     char **func_arg;
     getcwd(home_dir, INPUT_SIZE); // gets the current working directory
+    printf("\033[H\033[J");
     printf("%s\n", welcome_mssg);
     char flags[INPUT_SIZE] = "";
     int flag = 0;
@@ -40,13 +41,13 @@ int main()
             }
             // printf("command: %s.\n", command);
             // printf("flags: %s\n", flags);
-            // printf("command: %s\n", command);
-            // printf("argc: %d\n", argc);
-            // for (int j = 0; j < argc; j++)
-            // {
-            //     printf("argv[%d]: %s\n", j, argv[j]);
-            // }
-            // printf("flags : %s\n", flags);
+            printf("command: %s\n", command);
+            printf("argc: %d\n", argc);
+            for (int j = 0; j < argc; j++)
+            {
+                printf("argv[%d]: %s\n", j, argv[j]);
+            }
+            printf("flags : %s\n", flags);
             if (!argc)
             {
                 continue;

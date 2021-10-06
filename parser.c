@@ -18,6 +18,8 @@ int parse_command(char *input, char *command, char argv[][INPUT_SIZE], char *fla
         {
             if (!(strlen(c) > 2 && c[1] == '-'))
                 strcat(flags, c + 1);
+            strcpy(argv[len], c);
+            len++;
         }
         else
         {

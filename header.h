@@ -62,5 +62,6 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
 void process(int signum);
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc);
 void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home);
+char get_pinfo(int pid);
 
 #endif
