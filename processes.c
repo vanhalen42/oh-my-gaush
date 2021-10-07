@@ -79,8 +79,12 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
     {
         if (!flag)
         {
+            int status;
             running_pid = pid;
-            wait(NULL);
+            // wait(NULL)
+            while (waitpid(pid, &status, WCONTINUED | WUNTRACED) != pid)
+                ;
+            // tcsetpgrp(0, getpgrp());
         }
         else
         {
