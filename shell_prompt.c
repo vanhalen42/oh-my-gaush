@@ -1,4 +1,5 @@
-#include "header.h"
+ #include "header.h"
+
 void print_shell_prompt(char home[], char *prev_command)
 {
     //obtain details of the user and the system

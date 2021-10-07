@@ -1,4 +1,4 @@
-#include "header.h"
+ #include "header.h"
 void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home)
 {
     char current_dir[INPUT_SIZE];

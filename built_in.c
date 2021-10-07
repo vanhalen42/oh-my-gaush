@@ -1,4 +1,5 @@
-#include "header.h"
+ #include "header.h"
+
 void pwd(char *home)
 {
     char dir[INPUT_SIZE];

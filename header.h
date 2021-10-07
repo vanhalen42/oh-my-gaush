@@ -60,8 +60,13 @@ int flags_parser(char *input, char *flags);
 int flag_in(char flag, char *flags);
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags);
 void process(int signum);
-int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc);
+void ctrl_C(int signum);
+void ctrl_Z(int signum);
+
+int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[]);
 void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home);
 char get_pinfo(int pid);
-
+int parse_io(char a[], char command[], char input[], char output[]);
+extern int shell_pid;
+extern int running_pid;
 #endif

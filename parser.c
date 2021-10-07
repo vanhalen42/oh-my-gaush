@@ -44,6 +44,76 @@ int parse_semicolon(char a[], char b[][INPUT_SIZE])
     }
     return len;
 }
+int parse_io(char a[], char command[], char input[], char output[])
+{
+    char *save, *c, buffer[INPUT_SIZE];
+    int num = 0; // if the command has input output or none
+    strcpy(buffer, a);
+    strcpy(command, "");
+    strcpy(input, "");
+    strcpy(output, "");
+    int len = 0;
+    c = strtok_r(buffer, ">", &save);
+    while (c != NULL)
+    {
+
+        if (len == 0)
+        {
+            strcpy(command, c);
+            num++;
+        }
+        else if (len == 1)
+        {
+            strcpy(output, c);
+            num++;
+        }
+
+        c = strtok_r(NULL, ">", &save);
+        len++;
+    }
+    strcpy(buffer, command);
+    num += len;
+    len = 0;
+    c = strtok_r(buffer, "<", &save);
+    while (c != NULL)
+    {
+
+        if (len == 0)
+        {
+            strcpy(command, c);
+        }
+        else if (len == 1)
+        {
+            strcpy(input, c);
+            num++;
+        }
+        c = strtok_r(NULL, "<", &save);
+        len++;
+    }
+    if (strcmp(input, "") != 0)
+    {
+        strcpy(buffer, input);
+        c = strtok_r(buffer, " ", &save);
+        strcpy(input, "");
+        while (c != NULL)
+        {
+            strcat(input, c);
+            c = strtok_r(NULL, " ", &save);
+        }
+    }
+    if (strcmp(output, "") != 0)
+    {
+        strcpy(buffer, output);
+        c = strtok_r(buffer, " ", &save);
+        strcpy(output, "");
+        while (c != NULL)
+        {
+            strcat(output, c);
+            c = strtok_r(NULL, " ", &save);
+        }
+    }
+    return num;
+}
 int flags_parser(char *input, char *flags)
 {
     char *save, *c, buffer[INPUT_SIZE];

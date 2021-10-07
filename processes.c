@@ -1,9 +1,10 @@
 #include "header.h"
-struct proc
+typedef struct proc
 {
     char proc_name[INPUT_SIZE];
     int pid;
-} bg_processes[INPUT_SIZE];
+} proc;
+proc bg_processes[INPUT_SIZE];
 int total_bg_proc = 0;
 int comparator(const void *a, const void *b)
 {
@@ -81,6 +82,7 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
     {
         if (!flag)
         {
+            running_pid = pid;
             wait(NULL);
         }
         else
@@ -121,12 +123,37 @@ void process(int signum)
         }
         total_bg_proc--;
     }
+    running_pid = shell_pid;
     // print_all_proc();
     return;
 }
 
-int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc)
+int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[])
 {
+    int original_input = 4, original_output = 5;
+    dup2(STDIN_FILENO, original_input);
+    dup2(STDOUT_FILENO, original_output);
+
+    if (strcmp(io_in, "") != 0)
+    {
+        int f_open = open(io_in, O_RDONLY);
+        if (f_open < 0)
+        {
+            fprintf(stdout, "Error: %s", strerror(errno));
+        }
+        dup2(f_open, STDIN_FILENO);
+        close(f_open);
+    }
+    if (strcmp(io_out, "") != 0)
+    {
+        int f_open = open(io_out, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (f_open < 0)
+        {
+            fprintf(stdout, "Error: %s", strerror(errno));
+        }
+        dup2(f_open, STDOUT_FILENO);
+        close(f_open);
+    }
     int exit_code = 0;
     if (strcmp(command, "clear") == 0) // implementation of clear
     {
@@ -179,7 +206,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             for (int k = 0; k < n; k++)
             {
                 // printf("inputtstr:%s\n", new_input);
-                execute_command(new_input, home_dir, new_argv[0], new_argv, flags, flag, new_argc);
+                execute_command(new_input, home_dir, new_argv[0], new_argv, flags, flag, new_argc, io_in, io_out);
             }
         }
         else
@@ -292,11 +319,16 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
                 bg_processes[i - 1] = bg_processes[i];
             }
             total_bg_proc--;
+            running_pid = shell_pid;
         }
     }
     else
     {
         run_process(command, argv, argc, flag, flags);
     }
+
+    dup2(original_input, STDIN_FILENO);
+    dup2(original_output, STDOUT_FILENO);
+
     return exit_code;
 }
