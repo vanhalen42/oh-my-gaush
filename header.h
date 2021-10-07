@@ -69,4 +69,13 @@ char get_pinfo(int pid);
 int parse_io(char a[], char command[], char input[], char output[]);
 extern int shell_pid;
 extern int running_pid;
+typedef struct proc
+{
+    int jpb_no;
+    char proc_name[INPUT_SIZE];
+    int pid;
+} proc;
+extern proc bg_processes[INPUT_SIZE];
+extern int total_bg_proc;
+extern int job_number;
 #endif

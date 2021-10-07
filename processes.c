@@ -1,11 +1,8 @@
 #include "header.h"
-typedef struct proc
-{
-    char proc_name[INPUT_SIZE];
-    int pid;
-} proc;
+
 proc bg_processes[INPUT_SIZE];
 int total_bg_proc = 0;
+int job_number = 1;
 int comparator(const void *a, const void *b)
 {
     int diff = strcmp(((struct proc *)a)->proc_name, ((struct proc *)b)->proc_name);
@@ -23,7 +20,7 @@ void print_all_proc(char *flags)
             continue;
         else if (status == 'T' && (flag_in('r', flags) && !(flag_in('s', flags))))
             continue;
-        printf("[%d] ", k + 1);
+        printf("[%d] ", bg_processes[k].jpb_no);
         if (status == 'R' || status == 'S')
         {
             printf("Running ");
@@ -90,6 +87,8 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
             printf("%d\n", pid);
             bg_processes[total_bg_proc].pid = pid;
             strcpy(bg_processes[total_bg_proc].proc_name, command);
+            bg_processes[total_bg_proc].jpb_no = job_number;
+            job_number++;
             total_bg_proc++;
         }
     }
@@ -239,7 +238,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             return exit_code;
         }
         int job_no = atoi(argv[1]);
-        if (job_no <= 0 || job_no > total_bg_proc)
+        if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
             return exit_code;
@@ -249,7 +248,14 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         {
             return exit_code;
         }
-        int pid = bg_processes[job_no - 1].pid;
+        int pid = 0;
+        for (int i = 0; i < total_bg_proc; i++)
+        {
+            if (bg_processes[i].jpb_no == job_no)
+            {
+                pid = bg_processes[i].pid;
+            }
+        }
         int ret = kill(pid, signal);
         if (ret < 0)
         {
@@ -264,13 +270,20 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             return exit_code;
         }
         int job_no = atoi(argv[1]);
-        if (job_no <= 0 || job_no > total_bg_proc)
+        if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
             return exit_code;
         }
         int signal = SIGCONT;
-        int pid = bg_processes[job_no - 1].pid;
+        int pid = 0;
+        for (int i = 0; i < total_bg_proc; i++)
+        {
+            if (bg_processes[i].jpb_no == job_no)
+            {
+                pid = bg_processes[i].pid;
+            }
+        }
         int ret = kill(pid, signal);
         if (ret < 0)
         {
@@ -286,20 +299,30 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             return exit_code;
         }
         int job_no = atoi(argv[1]);
-        if (job_no <= 0 || job_no > total_bg_proc)
+        if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
             return exit_code;
         }
         int signal = SIGCONT;
-        int pid = bg_processes[job_no - 1].pid;
+        int pid = 0;
+        for (int i = 0; i < total_bg_proc; i++)
+        {
+            if (bg_processes[i].jpb_no == job_no)
+            {
+                pid = bg_processes[i].pid;
+            }
+        }
+        running_pid = pid;
         int ret = kill(pid, signal);
         if (ret < 0)
         {
             printf("Error: %s", strerror(errno));
+            running_pid = shell_pid;
         }
         else
         {
+
             while (waitpid(pid, &status, WNOHANG) != pid)
                 ;
             char process_name[INPUT_SIZE] = "unnamed process";
