@@ -8,7 +8,14 @@ void ctrl_C(int signum)
         if (ret < 0)
         {
             printf("Error: %s", strerror(errno));
+            cflag = 0;
+            zflag = 0;
             exit(0);
+        }
+        else
+        {
+            cflag = 1;
+            zflag = 0;
         }
     }
     return;
@@ -21,7 +28,13 @@ void ctrl_Z(int signum)
         if (ret < 0)
         {
             printf("Error: %s", strerror(errno));
+            zflag = 0;
             exit(0);
+        }
+        else
+        {
+            cflag = 0;
+            zflag = 1;
         }
     }
     return;

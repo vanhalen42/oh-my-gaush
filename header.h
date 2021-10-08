@@ -78,4 +78,6 @@ typedef struct proc
 extern proc bg_processes[INPUT_SIZE];
 extern int total_bg_proc;
 extern int job_number;
+extern int zflag;
+extern int cflag;
 #endif

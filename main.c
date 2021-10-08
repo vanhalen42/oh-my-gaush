@@ -4,6 +4,8 @@
 char welcome_mssg[] = "              _                            _   \n__      _____| | ___ ___  _ __ ___   ___  | |_ ___  \n\\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ | __/ _ \\\n \\ V  V /  __/ | (_| (_) | | | | | |  __/ | || (_) |\n  \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___|  \\__\\___/ \n\n       _                                                       _  \n  ___ | |__        _ __ ___  _   _        __ _  __ _ _   _ ___| |__  \n / _ \\| '_ \\ _____| '_ ` _ \\| | | |_____ / _` |/ _` | | | / __| '_ \\ \n| (_) | | | |_____| | | | | | |_| |_____| (_| | (_| | |_| \\__ \\ | | |\n \\___/|_| |_|     |_| |_| |_|\\__, |      \\__, |\\__,_|\\__,_|___/_| |_|\n                             |___/       |___/                 \n      ";
 int shell_pid = 0;
 int running_pid = 0;
+int zflag = 0;
+int cflag = 0;
 int main()
 {
     shell_pid = getpid();
@@ -28,8 +30,10 @@ int main()
     int exit_code = 0;
     while (1)
     {
+        cflag = 0;
+        zflag = 0;
         print_shell_prompt(home_dir, prev_command);
-        if (fgets(input_str, INPUT_SIZE, stdin)== NULL)
+        if (fgets(input_str, INPUT_SIZE, stdin) == NULL)
             exit(0);
         int num_commands = parse_semicolon(input_str, input);
         for (int i = 0; i < num_commands; i++)

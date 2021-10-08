@@ -36,6 +36,16 @@ void print_all_proc(char *flags)
 }
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags)
 {
+    char input[INPUT_SIZE] = "";
+    if (!argc)
+        return;
+    strcat(input, argv[0]);
+    for (int i = 1; i < argc; i++)
+    {
+        strcat(input, " ");
+        strcat(input, argv[i]);
+    }
+
     int pid = fork();
     char **func_arg;
     if (pid < 0)
@@ -82,15 +92,32 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
             int status;
             running_pid = pid;
             // wait(NULL)
-            while (waitpid(pid, &status, WCONTINUED | WUNTRACED) != pid)
+            while (waitpid(pid, &status, WNOHANG | WUNTRACED) != pid)
                 ;
+            if (zflag == 1)
+            {
+                // printf("hahahaha\n");
+                if (total_bg_proc >= INPUT_SIZE)
+                {
+                    printf("LIMIT REACHED:cant execute more processes\n");
+                    exit(0);
+                }
+                bg_processes[total_bg_proc].pid = pid;
+                strcpy(bg_processes[total_bg_proc].proc_name, input);
+                bg_processes[total_bg_proc].jpb_no = job_number;
+                job_number++;
+                total_bg_proc++;
+                zflag = 0;
+                cflag = 0;
+            }
+            running_pid = shell_pid;
             // tcsetpgrp(0, getpgrp());
         }
         else
         {
             printf("%d\n", pid);
             bg_processes[total_bg_proc].pid = pid;
-            strcpy(bg_processes[total_bg_proc].proc_name, command);
+            strcpy(bg_processes[total_bg_proc].proc_name, input);
             bg_processes[total_bg_proc].jpb_no = job_number;
             job_number++;
             total_bg_proc++;
@@ -195,7 +222,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             if (!n)
             {
                 printf("Error: non-integer arguments\n");
-                return exit_code;
+                goto exit;
             }
             int new_argc = argc - 2;
             char new_argv[INPUT_SIZE][INPUT_SIZE];
@@ -239,18 +266,18 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         if (argc != 3)
         {
             printf("3 arguments must be supplied for \"sig\": sig [job_no] [signal]\n");
-            return exit_code;
+            goto exit;
         }
         int job_no = atoi(argv[1]);
         if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
-            return exit_code;
+            goto exit;
         }
         int signal = atoi(argv[2]);
         if (!signal)
         {
-            return exit_code;
+            goto exit;
         }
         int pid = 0;
         for (int i = 0; i < total_bg_proc; i++)
@@ -271,13 +298,13 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         if (argc != 2)
         {
             printf("2 arguments must be supplied for \"bg\": bg [job_no]\n");
-            return exit_code;
+            goto exit;
         }
         int job_no = atoi(argv[1]);
         if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
-            return exit_code;
+            goto exit;
         }
         int signal = SIGCONT;
         int pid = 0;
@@ -300,13 +327,13 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         if (argc != 2)
         {
             printf("2 arguments must be supplied for \"fg\": fg [job_no]\n");
-            return exit_code;
+            goto exit;
         }
         int job_no = atoi(argv[1]);
         if (job_no <= 0 || job_no > job_number)
         {
             printf("Incorrect Job number. Aborting!");
-            return exit_code;
+            goto exit;
         }
         int signal = SIGCONT;
         int pid = 0;
@@ -315,8 +342,15 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             if (bg_processes[i].jpb_no == job_no)
             {
                 pid = bg_processes[i].pid;
+                break;
             }
         }
+        if (!pid)
+        {
+            printf(RED "job with job number [%d] not found \n" INPUT_COLOR, job_no);
+            goto exit;
+        }
+        printf("pid %d \n", pid);
         running_pid = pid;
         int ret = kill(pid, signal);
         if (ret < 0)
@@ -327,25 +361,31 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         else
         {
 
-            while (waitpid(pid, &status, WNOHANG) != pid)
+            while (waitpid(pid, &status, WUNTRACED | WNOHANG | WCONTINUED) != pid)
                 ;
-            char process_name[INPUT_SIZE] = "unnamed process";
-            int i;
+            if (cflag == 1)
+            {
+                printf("hahahaha\n");
+                char process_name[INPUT_SIZE] = "unnamed process";
+                int i;
 
-            for (i = 0; i < total_bg_proc; i++)
-            {
-                if (bg_processes[i].pid == pid)
+                for (i = 0; i < total_bg_proc; i++)
                 {
-                    strcpy(process_name, bg_processes[i].proc_name);
-                    break;
+                    if (bg_processes[i].pid == pid)
+                    {
+                        strcpy(process_name, bg_processes[i].proc_name);
+                        break;
+                    }
                 }
+                i++;
+                for (; i < total_bg_proc; i++)
+                {
+                    bg_processes[i - 1] = bg_processes[i];
+                }
+                total_bg_proc--;
+                zflag = 0;
+                cflag = 0;
             }
-            i++;
-            for (; i < total_bg_proc; i++)
-            {
-                bg_processes[i - 1] = bg_processes[i];
-            }
-            total_bg_proc--;
             running_pid = shell_pid;
         }
     }
@@ -353,7 +393,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
     {
         run_process(command, argv, argc, flag, flags);
     }
-
+exit:
     dup2(original_input, STDIN_FILENO);
     dup2(original_output, STDOUT_FILENO);
 
