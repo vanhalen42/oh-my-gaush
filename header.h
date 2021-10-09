@@ -48,6 +48,8 @@ extern int errno;
 void print_shell_prompt(char home[], char *prev_command);
 void pwd(char *home);
 void ls(char *flags, char argv[][INPUT_SIZE], int argc, char *home);
+int print_ls_file(char *current_dir, char *flags, char *name);
+
 int count_total(char *flags, char *input, char *home);
 void echo_parser(char *input);
 int parse_command(char *input, char *command, char argv[][INPUT_SIZE], char *flags);

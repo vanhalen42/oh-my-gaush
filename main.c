@@ -98,10 +98,10 @@ int main()
                 close(pipe_out);
                 dup2(original_input, STDIN_FILENO);
                 dup2(original_output, STDOUT_FILENO);
+                if (k != 0)
+                    close(pipe_in);
                 if (k < total_pipes - 1)
                 {
-                    if (k != 0)
-                        close(pipe_in);
                     pipe_in = pipe_fd[0];
                     dup2(pipe_in, STDIN_FILENO);
                 }
