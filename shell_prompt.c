@@ -17,7 +17,7 @@ void print_shell_prompt(char home[], char *prev_command)
     char relative_dir[INPUT_SIZE];
     get_relative_dir(dir, home, relative_dir);
 
-    //Enhanced promt : requires the font MesloLGS NF
+    //Enhanced prompt : requires the font MesloLGS NF
     char file_char[] = "";
     if (strcmp(relative_dir, "~") == 0)
         strcpy(file_char, "");

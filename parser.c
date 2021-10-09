@@ -44,6 +44,20 @@ int parse_semicolon(char a[], char b[][INPUT_SIZE])
     }
     return len;
 }
+int pipe_parser(char input[], char output[][INPUT_SIZE])
+{
+    char *save, *c, buffer[INPUT_SIZE];
+    strcpy(buffer, input);
+    c = strtok_r(buffer, "|\n", &save);
+    int len = 0;
+    while (c != NULL)
+    {
+        strcpy(output[len], c);
+        c = strtok_r(NULL, "|\n", &save);
+        len++;
+    }
+    return len;
+}
 int parse_io(char a[], char command[], char input[], char output[])
 {
     char *save, *c, buffer[INPUT_SIZE];
@@ -93,23 +107,23 @@ int parse_io(char a[], char command[], char input[], char output[])
     if (strcmp(input, "") != 0)
     {
         strcpy(buffer, input);
-        c = strtok_r(buffer, " ", &save);
+        c = strtok_r(buffer, " \t\n", &save);
         strcpy(input, "");
         while (c != NULL)
         {
             strcat(input, c);
-            c = strtok_r(NULL, " ", &save);
+            c = strtok_r(NULL, " \t\n", &save);
         }
     }
     if (strcmp(output, "") != 0)
     {
         strcpy(buffer, output);
-        c = strtok_r(buffer, " ", &save);
+        c = strtok_r(buffer, " \t\n", &save);
         strcpy(output, "");
         while (c != NULL)
         {
             strcat(output, c);
-            c = strtok_r(NULL, " ", &save);
+            c = strtok_r(NULL, " \t\n", &save);
         }
     }
     return num;

@@ -6,9 +6,13 @@ int shell_pid = 0;
 int running_pid = 0;
 int zflag = 0;
 int cflag = 0;
+int original_input = 4, original_output = 5;
+
 int main()
 {
     shell_pid = getpid();
+    dup2(STDIN_FILENO, original_input);
+    dup2(STDOUT_FILENO, original_output);
     running_pid = shell_pid;
     signal(SIGCHLD, process);
     signal(SIGINT, ctrl_C);
@@ -20,6 +24,7 @@ int main()
     char home_dir[INPUT_SIZE] = "";            // stores the home directory
     char input[INPUT_SIZE][INPUT_SIZE] = {""}; // stores the input commands which are seperated by semicolon
     char argv[INPUT_SIZE][INPUT_SIZE] = {""};  // stores the arguments
+    char pipes[INPUT_SIZE][INPUT_SIZE] = {""};
     char **func_arg;
     getcwd(home_dir, INPUT_SIZE); // gets the current working directory
     printf("\033[H\033[J");
@@ -30,8 +35,6 @@ int main()
     int exit_code = 0;
     while (1)
     {
-        cflag = 0;
-        zflag = 0;
         print_shell_prompt(home_dir, prev_command);
         if (fgets(input_str, INPUT_SIZE, stdin) == NULL)
             exit(0);
@@ -39,38 +42,70 @@ int main()
         for (int i = 0; i < num_commands; i++)
         {
             // int num_flags=flags_parser(input_str, flags);
-            strcpy(flags, "");
-            char actual_command[INPUT_SIZE] = "";
-            char io_input[INPUT_SIZE] = "";
-            char io_output[INPUT_SIZE] = "";
-            int io_args = parse_io(input[i], actual_command, io_input, io_output);
-            int argc = parse_command(actual_command, command, argv, flags);
-            strcpy(prev_command, command);
-            if (strcmp(argv[argc - 1], "&") == 0)
+            int total_pipes = pipe_parser(input[i], pipes);
+            int pipe_fd[2], pipe_in, pipe_out;
+            for (int k = 0; k < total_pipes; k++)
             {
-                flag = 1;
-                argc--;
-                strcpy(argv[argc], "");
+                char actual_command[INPUT_SIZE] = "";
+                strcpy(actual_command, pipes[k]);
+                if (strtok(actual_command, " \t") == NULL)
+                    continue;
+                if (pipe(pipe_fd) < 0)
+                {
+                    printf("Erorr: %s\n", strerror(errno));
+                    exit(1);
+                }
+                else
+                {
+                    pipe_out = pipe_fd[1];
+                }
+                if (k < total_pipes - 1)
+                {
+                    dup2(pipe_out, STDOUT_FILENO);
+                }
+                strcpy(flags, "");
+                strcpy(actual_command, "");
+                char io_input[INPUT_SIZE] = "";
+                char io_output[INPUT_SIZE] = "";
+                int io_args = parse_io(pipes[k], actual_command, io_input, io_output);
+                int argc = parse_command(actual_command, command, argv, flags);
+                strcpy(prev_command, command);
+                if (strcmp(argv[argc - 1], "&") == 0)
+                {
+                    flag = 1;
+                    argc--;
+                    strcpy(argv[argc], "");
+                }
+                else
+                {
+                    flag = 0;
+                }
+                // printf("command: %s.\n", command);
+                // printf("flags: %s\n", flags);
+                printf("command: %s\n", command);
+                printf("argc: %d\n", argc);
+                for (int j = 0; j < argc; j++)
+                {
+                    printf("argv[%d]: %s\n", j, argv[j]);
+                }
+                printf("flags : %s\n", flags);
+                if (!argc)
+                {
+                    continue;
+                }
+                // printf("%s\n%d\n", command,lol);
+                execute_command(actual_command, home_dir, command, argv, flags, flag, argc, io_input, io_output);
+                close(pipe_out);
+                dup2(original_input, STDIN_FILENO);
+                dup2(original_output, STDOUT_FILENO);
+                if (k < total_pipes - 1)
+                {
+                    if (k != 0)
+                        close(pipe_in);
+                    pipe_in = pipe_fd[0];
+                    dup2(pipe_in, STDIN_FILENO);
+                }
             }
-            else
-            {
-                flag = 0;
-            }
-            // printf("command: %s.\n", command);
-            // printf("flags: %s\n", flags);
-            printf("command: %s\n", command);
-            printf("argc: %d\n", argc);
-            for (int j = 0; j < argc; j++)
-            {
-                printf("argv[%d]: %s\n", j, argv[j]);
-            }
-            printf("flags : %s\n", flags);
-            if (!argc)
-            {
-                continue;
-            }
-            // printf("%s\n%d\n", command,lol);
-            execute_command(actual_command, home_dir, command, argv, flags, flag, argc, io_input, io_output);
         }
     }
     return 0;

@@ -36,6 +36,8 @@ void print_all_proc(char *flags)
 }
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags)
 {
+    signal(SIGINT, ctrl_C);
+    signal(SIGTSTP, ctrl_Z);
     char input[INPUT_SIZE] = "";
     if (!argc)
         return;
@@ -160,10 +162,8 @@ void process(int signum)
 
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[])
 {
-    int original_input = 4, original_output = 5;
-    dup2(STDIN_FILENO, original_input);
-    dup2(STDOUT_FILENO, original_output);
-
+    signal(SIGINT, ctrl_C);
+    signal(SIGTSTP, ctrl_Z);
     if (strcmp(io_in, "") != 0)
     {
         int f_open = open(io_in, O_RDONLY);
@@ -285,7 +285,13 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             if (bg_processes[i].jpb_no == job_no)
             {
                 pid = bg_processes[i].pid;
+                break;
             }
+        }
+        if (!pid)
+        {
+            printf(RED "job with job number [%d] not found \n" INPUT_COLOR, job_no);
+            goto exit;
         }
         int ret = kill(pid, signal);
         if (ret < 0)
@@ -313,7 +319,13 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             if (bg_processes[i].jpb_no == job_no)
             {
                 pid = bg_processes[i].pid;
+                break;
             }
+        }
+        if (!pid)
+        {
+            printf(RED "job with job number [%d] not found \n" INPUT_COLOR, job_no);
+            goto exit;
         }
         int ret = kill(pid, signal);
         if (ret < 0)
@@ -335,7 +347,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             printf("Incorrect Job number. Aborting!");
             goto exit;
         }
-        int signal = SIGCONT;
+        int signal_to_send = SIGCONT;
         int pid = 0;
         for (int i = 0; i < total_bg_proc; i++)
         {
@@ -352,17 +364,26 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         }
         printf("pid %d \n", pid);
         running_pid = pid;
-        int ret = kill(pid, signal);
+        signal(SIGTTOU, SIG_IGN);
+        signal(SIGTTIN, SIG_IGN);
+        tcsetpgrp(0, getpgid(pid));
+        int ret = kill(pid, signal_to_send);
         if (ret < 0)
         {
             printf("Error: %s", strerror(errno));
             running_pid = shell_pid;
+            tcsetpgrp(0, shell_pid);
+            signal(SIGTTOU, SIG_DFL);
+            signal(SIGTTIN, SIG_DFL);
         }
         else
         {
-
-            while (waitpid(pid, &status, WUNTRACED | WNOHANG | WCONTINUED) != pid)
+            while (waitpid(pid, &status, WUNTRACED) != pid)
                 ;
+            tcsetpgrp(0, shell_pid);
+            signal(SIGTTOU, SIG_DFL);
+            signal(SIGTTIN, SIG_DFL);
+            printf("\ncflag: %d\n", cflag);
             if (cflag == 1)
             {
                 printf("hahahaha\n");

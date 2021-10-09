@@ -56,6 +56,7 @@ void get_relative_dir(char *dir, char *home, char *relative);
 void get_absolute_dir(char *dir, char *home, char *absolute);
 void foreground(char *input_str, char *command);
 int parse_semicolon(char a[], char b[][INPUT_SIZE]);
+int pipe_parser(char input[], char output[][INPUT_SIZE]);
 int flags_parser(char *input, char *flags);
 int flag_in(char flag, char *flags);
 void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, char *flags);
@@ -64,6 +65,8 @@ void ctrl_C(int signum);
 void ctrl_Z(int signum);
 
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[]);
+int exec_pipe(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[]);
+
 void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home);
 char get_pinfo(int pid);
 int parse_io(char a[], char command[], char input[], char output[]);
@@ -76,8 +79,7 @@ typedef struct proc
     int pid;
 } proc;
 extern proc bg_processes[INPUT_SIZE];
-extern int total_bg_proc;
-extern int job_number;
-extern int zflag;
-extern int cflag;
+extern int total_bg_proc, job_number, zflag, cflag;
+extern int original_input, original_output;
+
 #endif
