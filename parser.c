@@ -58,11 +58,19 @@ int pipe_parser(char input[], char output[][INPUT_SIZE])
     }
     return len;
 }
-int parse_io(char a[], char command[], char input[], char output[])
+int parse_io(char a[], char command[], char input[], char output[], int *append_flag)
 {
     char *save, *c, buffer[INPUT_SIZE];
     int num = 0; // if the command has input output or none
     strcpy(buffer, a);
+    for (int i = 0; i < strlen(buffer) - 1; i++)
+    {
+        if (buffer[i] == '>' && buffer[i + 1] == '>')
+        {
+            *append_flag = 1;
+            break;
+        }
+    }
     strcpy(command, "");
     strcpy(input, "");
     strcpy(output, "");

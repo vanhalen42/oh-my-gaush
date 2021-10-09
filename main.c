@@ -33,6 +33,7 @@ int main()
     char flags[INPUT_SIZE] = "";
     int flag = 0;
     int exit_code = 0;
+    int append_flag = 0;
     while (1)
     {
         print_shell_prompt(home_dir, prev_command);
@@ -63,11 +64,12 @@ int main()
                 {
                     dup2(pipe_out, STDOUT_FILENO);
                 }
+                append_flag = 0;
                 strcpy(flags, "");
                 strcpy(actual_command, "");
                 char io_input[INPUT_SIZE] = "";
                 char io_output[INPUT_SIZE] = "";
-                int io_args = parse_io(pipes[k], actual_command, io_input, io_output);
+                int io_args = parse_io(pipes[k], actual_command, io_input, io_output, &append_flag);
                 int argc = parse_command(actual_command, command, argv, flags);
                 strcpy(prev_command, command);
                 if (strcmp(argv[argc - 1], "&") == 0)
@@ -82,19 +84,19 @@ int main()
                 }
                 // printf("command: %s.\n", command);
                 // printf("flags: %s\n", flags);
-                printf("command: %s\n", command);
-                printf("argc: %d\n", argc);
-                for (int j = 0; j < argc; j++)
-                {
-                    printf("argv[%d]: %s\n", j, argv[j]);
-                }
-                printf("flags : %s\n", flags);
+                // printf("command: %s\n", command);
+                // printf("argc: %d\n", argc);
+                // for (int j = 0; j < argc; j++)
+                // {
+                //     printf("argv[%d]: %s\n", j, argv[j]);
+                // }
+                // printf("flags : %s\n", flags);
                 if (!argc)
                 {
                     continue;
                 }
                 // printf("%s\n%d\n", command,lol);
-                execute_command(actual_command, home_dir, command, argv, flags, flag, argc, io_input, io_output);
+                execute_command(actual_command, home_dir, command, argv, flags, flag, argc, io_input, io_output, &append_flag);
                 close(pipe_out);
                 dup2(original_input, STDIN_FILENO);
                 dup2(original_output, STDOUT_FILENO);

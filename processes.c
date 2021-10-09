@@ -160,7 +160,7 @@ void process(int signum)
     return;
 }
 
-int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[])
+int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[], int *append_flag)
 {
     signal(SIGINT, ctrl_C);
     signal(SIGTSTP, ctrl_Z);
@@ -176,7 +176,11 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
     }
     if (strcmp(io_out, "") != 0)
     {
-        int f_open = open(io_out, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        int f_open;
+        if (*append_flag == 1)
+            f_open = open(io_out, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        else
+            f_open = open(io_out, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (f_open < 0)
         {
             fprintf(stdout, "Error: %s", strerror(errno));
@@ -236,7 +240,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
             for (int k = 0; k < n; k++)
             {
                 // printf("inputtstr:%s\n", new_input);
-                execute_command(new_input, home_dir, new_argv[0], new_argv, flags, flag, new_argc, io_in, io_out);
+                execute_command(new_input, home_dir, new_argv[0], new_argv, flags, flag, new_argc, io_in, io_out, append_flag);
             }
         }
         else

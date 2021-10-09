@@ -66,12 +66,12 @@ void process(int signum);
 void ctrl_C(int signum);
 void ctrl_Z(int signum);
 
-int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[]);
+int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[], int *append_flag);
 int exec_pipe(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[]);
 
 void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home);
 char get_pinfo(int pid);
-int parse_io(char a[], char command[], char input[], char output[]);
+int parse_io(char a[], char command[], char input[], char output[], int *append_flag);
 extern int shell_pid;
 extern int running_pid;
 typedef struct proc
