@@ -129,7 +129,7 @@ void process(int signum)
                 break;
             }
         }
-        printf("index: %d\n", i);
+        // printf("index: %d\n", i);
         if (WIFEXITED(status))
             fprintf(stderr, "\n%s with pid %d exited normally\n", process_name, ret_pid);
         else
