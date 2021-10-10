@@ -381,7 +381,7 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
                     break;
                 }
             }
-            printf("index: %d\n", i);
+            // printf("index: %d\n", i);
             if (WIFEXITED(status))
             {
                 fprintf(stderr, "\n%s with pid %d exited normally\n", process_name, pid);

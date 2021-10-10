@@ -68,11 +68,11 @@ void ctrl_Z(int signum)
                 running_pid = shell_pid;
                 return;
             }
-            char input[INPUT_SIZE] = "";
-            get_pinfo(running_pid, 1, input);
+            // char input[INPUT_SIZE] = "";
+            // get_pinfo(running_pid, 1, input);
             printf("\n%d\n", running_pid);
             bg_processes[total_bg_proc].pid = running_pid;
-            strcpy(bg_processes[total_bg_proc].proc_name, input);
+            strcpy(bg_processes[total_bg_proc].proc_name, global_command);
             bg_processes[total_bg_proc].jpb_no = job_number;
             job_number++;
             total_bg_proc++;

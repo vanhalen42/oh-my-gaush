@@ -7,7 +7,7 @@ int running_pid = 0;
 int zflag = 0;
 int cflag = 0;
 int original_input = 4, original_output = 5;
-
+char global_command[INPUT_SIZE] = "";
 int main()
 {
     shell_pid = getpid();
@@ -53,6 +53,7 @@ int main()
                 if (replay_flag >= 0)
                     sleep(interval);
                 int total_pipes = pipe_parser(input[i], pipes);
+                strcpy(global_command, input[i]);
                 int pipe_fd[2], pipe_in, pipe_out;
                 for (int k = 0; k < total_pipes; k++)
                 {
