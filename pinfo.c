@@ -66,7 +66,7 @@ void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home)
         printf("Executable Path -- %s\n", relative);
     }
 }
-char  get_pinfo(int pid)
+void get_pinfo(int pid, int index, char return_string[])
 {
 
     char pid_str[50];
@@ -79,7 +79,7 @@ char  get_pinfo(int pid)
     if (f < 0)
     {
         printf(RED "Such a process doesnt exist.\n");
-        return 0;
+        return;
     }
     int total_bytes = 10002;
     lseek(f, 0, SEEK_SET);
@@ -94,5 +94,5 @@ char  get_pinfo(int pid)
     {
         status[i++] = strtok(NULL, " ");
     }
-    return status[2][0];
+    strcpy(return_string, status[index]);
 }

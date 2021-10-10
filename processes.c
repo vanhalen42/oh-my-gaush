@@ -15,22 +15,23 @@ void print_all_proc(char *flags)
     qsort(bg_processes, total_bg_proc, sizeof(struct proc), comparator);
     for (int k = 0; k < total_bg_proc; k++)
     {
-        char status = get_pinfo(bg_processes[k].pid);
-        if ((status == 'R' || status == 'S') && (flag_in('s', flags) && !(flag_in('r', flags))))
+        char status[INPUT_SIZE] = "";
+        get_pinfo(bg_processes[k].pid, 2, status);
+        if ((status[0] == 'R' || status[0] == 'S') && (flag_in('s', flags) && !(flag_in('r', flags))))
             continue;
-        else if (status == 'T' && (flag_in('r', flags) && !(flag_in('s', flags))))
+        else if (status[0] == 'T' && (flag_in('r', flags) && !(flag_in('s', flags))))
             continue;
         printf("[%d] ", bg_processes[k].jpb_no);
-        if (status == 'R' || status == 'S')
+        if (status[0] == 'R' || status[0] == 'S')
         {
             printf("Running ");
         }
-        else if (status == 'T')
+        else if (status[0] == 'T')
         {
             printf("Stopped ");
         }
         else
-            printf("%c ", status);
+            printf("%c ", status[0]);
         printf("%s [%d]\n", bg_processes[k].proc_name, bg_processes[k].pid);
     }
 }
@@ -75,7 +76,7 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
         // }
         if (total_bg_proc >= INPUT_SIZE)
         {
-            printf("LIMIT REACHED:cant execute more processes\n");
+            printf("LIMIT REACHED:can't execute more processes\n");
             exit(0);
         }
         if (flag)
@@ -96,23 +97,6 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
             // wait(NULL)
             while (waitpid(pid, &status, WNOHANG | WUNTRACED) != pid)
                 ;
-            if (zflag == 1)
-            {
-                // printf("hahahaha\n");
-                if (total_bg_proc >= INPUT_SIZE)
-                {
-                    printf("LIMIT REACHED:cant execute more processes\n");
-                    exit(0);
-                }
-                bg_processes[total_bg_proc].pid = pid;
-                strcpy(bg_processes[total_bg_proc].proc_name, input);
-                bg_processes[total_bg_proc].jpb_no = job_number;
-                job_number++;
-                total_bg_proc++;
-                zflag = 0;
-                cflag = 0;
-            }
-            running_pid = shell_pid;
             // tcsetpgrp(0, getpgrp());
         }
         else
@@ -129,8 +113,10 @@ void run_process(char *command, char argv[][INPUT_SIZE], int argc, int flag, cha
 }
 void process(int signum)
 {
+    // printf("YELLOWWWW\n");
     int status;
     pid_t ret_pid = waitpid(-1, &status, WNOHANG);
+    // printf("ret_pid : %d\n", ret_pid);
     char process_name[INPUT_SIZE] = "unnamed process";
     int i;
     if (ret_pid > 0)
@@ -154,16 +140,14 @@ void process(int signum)
             bg_processes[i - 1] = bg_processes[i];
         }
         total_bg_proc--;
+        running_pid = shell_pid;
     }
-    running_pid = shell_pid;
     // print_all_proc();
     return;
 }
 
 int execute_command(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE], char *flags, int flag, int argc, char io_in[], char io_out[], int *append_flag)
 {
-    signal(SIGINT, ctrl_C);
-    signal(SIGTSTP, ctrl_Z);
     if (strcmp(io_in, "") != 0)
     {
         int f_open = open(io_in, O_RDONLY);
@@ -382,36 +366,46 @@ int execute_command(char *input, char *home_dir, char *command, char argv[][INPU
         }
         else
         {
-            while (waitpid(pid, &status, WUNTRACED) != pid)
+            while (waitpid(pid, &status, WNOHANG | WUNTRACED) != pid)
                 ;
             tcsetpgrp(0, shell_pid);
             signal(SIGTTOU, SIG_DFL);
             signal(SIGTTIN, SIG_DFL);
-            printf("\ncflag: %d\n", cflag);
-            if (cflag == 1)
+            int i;
+            char process_name[INPUT_SIZE];
+            for (i = 0; i < total_bg_proc; i++)
             {
-                printf("hahahaha\n");
-                char process_name[INPUT_SIZE] = "unnamed process";
-                int i;
-
-                for (i = 0; i < total_bg_proc; i++)
+                if (bg_processes[i].pid == pid)
                 {
-                    if (bg_processes[i].pid == pid)
-                    {
-                        strcpy(process_name, bg_processes[i].proc_name);
-                        break;
-                    }
+                    strcpy(process_name, bg_processes[i].proc_name);
+                    break;
                 }
+            }
+            printf("index: %d\n", i);
+            if (WIFEXITED(status))
+            {
+                fprintf(stderr, "\n%s with pid %d exited normally\n", process_name, pid);
+
                 i++;
                 for (; i < total_bg_proc; i++)
                 {
                     bg_processes[i - 1] = bg_processes[i];
                 }
                 total_bg_proc--;
-                zflag = 0;
-                cflag = 0;
+                running_pid = shell_pid;
             }
-            running_pid = shell_pid;
+            else if (WIFSIGNALED(status))
+            {
+                fprintf(stderr, "\n%s with pid %d exited abnormally\n", process_name, pid);
+
+                i++;
+                for (; i < total_bg_proc; i++)
+                {
+                    bg_processes[i - 1] = bg_processes[i];
+                }
+                total_bg_proc--;
+                running_pid = shell_pid;
+            }
         }
     }
     else
