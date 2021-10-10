@@ -1,6 +1,6 @@
 HEADER_FILE=header.h
-OBJECT_FILES=main.o shell_prompt.o ls.o built_in.o parser.o processes.o pinfo.o signal_handler.o
-SOURCE_FILES=main.c shell_prompt.c ls.c built_in.c parser.c processes.c pinfo.c signal_handler.c
+OBJECT_FILES=main.o shell_prompt.o ls.o built_in.o parser.o processes.o pinfo.o signal_handler.o replay.o
+SOURCE_FILES=main.c shell_prompt.c ls.c built_in.c parser.c processes.c pinfo.c signal_handler.c replay.c
 SHELL_NAME=oh-my-gaush
 CC=gcc
 # CFLAGS=
