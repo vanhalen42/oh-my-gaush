@@ -72,6 +72,8 @@ int exec_pipe(char *input, char *home_dir, char *command, char argv[][INPUT_SIZE
 void pinfo(char *command, char argv[][INPUT_SIZE], int argc, char *home);
 void get_pinfo(int pid, int index, char return_string[]);
 int parse_io(char a[], char command[], char input[], char output[], int *append_flag);
+int replay(char command[], int *ret_interval);
+
 extern int shell_pid;
 extern int running_pid;
 typedef struct proc

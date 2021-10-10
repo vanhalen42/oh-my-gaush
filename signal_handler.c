@@ -12,7 +12,7 @@ void ctrl_C(int signum)
         }
         else
         {
-            printf("hahahaha\n");
+            // printf("hahahaha\n");
             char process_name[INPUT_SIZE] = "unnamed process";
             int i;
 
@@ -36,7 +36,7 @@ void ctrl_C(int signum)
 }
 void ctrl_Z(int signum)
 {
-    printf("running pid: %d\n shell pid: %d\n", running_pid, shell_pid);
+    // printf("running pid: %d\n shell pid: %d\n", running_pid, shell_pid);
     if (running_pid != shell_pid)
     {
         int ret = kill(running_pid, SIGSTOP);
@@ -51,7 +51,7 @@ void ctrl_Z(int signum)
             {
                 if (bg_processes[i].pid == running_pid)
                 {
-                    printf("\n1[%d] Stopped %s with pid [%d]\n", bg_processes[i].jpb_no, bg_processes[i].proc_name, bg_processes[i].pid);
+                    printf("\n[%d] Stopped %s with pid [%d]\n", bg_processes[i].jpb_no, bg_processes[i].proc_name, bg_processes[i].pid);
                     running_pid = shell_pid;
                     return;
                 }
@@ -77,7 +77,7 @@ void ctrl_Z(int signum)
             job_number++;
             total_bg_proc++;
             running_pid = shell_pid;
-            printf("\n2[%d] Stopped %s with pid [%d]\n", bg_processes[total_bg_proc - 1].jpb_no, bg_processes[total_bg_proc - 1].proc_name, bg_processes[total_bg_proc - 1].pid);
+            printf("\n[%d] Stopped %s with pid [%d]\n", bg_processes[total_bg_proc - 1].jpb_no, bg_processes[total_bg_proc - 1].proc_name, bg_processes[total_bg_proc - 1].pid);
         }
     }
     return;
