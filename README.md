@@ -18,7 +18,7 @@ you can run make which makes the executable **oh-my-gaush** which will run the s
 - non-terminal commands
 
 ---
-## Assignment 3 (Extending the shell)
+## Extending the shell
 ### Added files:
 - `signal_handler.c`: is used to handle signals of Ctrl C(^C) and Ctrl Z(^Z).
 - `replay.c`: implemented replay command (replays a command after intervals of t till period T is reached)
